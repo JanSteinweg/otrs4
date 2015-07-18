@@ -7,6 +7,17 @@ no warnings 'redefine';
 use utf8;
 sub Load {
     my ($File, $Self) = @_;
+$Self->{'PostMaster::PreFilterModule::NewTicketReject::Body'} =  'Dear Customer,
+
+Unfortunately we could not detect a valid ticket number
+in your subject, so this email can\'t be processed.
+
+Please create a new ticket via the customer panel.
+
+Thanks for your help!
+
+ Your Helpdesk Team';
+$Self->{'PostmasterMaxEmails'} =  '99';
 $Self->{'Frontend::ToolBarModule'}->{'10-Ticket::TicketSearchFulltext'} =  {
   'Block' => 'ToolBarSearchFulltext',
   'CSS' => 'Core.Agent.Toolbar.FulltextSearch.css',

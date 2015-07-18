@@ -4343,6 +4343,8 @@ $Self->{'Frontend::Module'}->{'AdminProcessManagement'} =  {
 $Self->{'PostMaster::PostFilterModule'}->{'001-NightDutyNotify'} =  {
   'Module' => 'Kernel::System::PostMaster::Filter::NightDutyNotify'
 };
+$Self->{'Steinwegs::DutyBodyLines'} =  '5';
+$Self->{'Steinwegs::DutySubjectLength'} =  '20';
 $Self->{'Steinwegs::NightDutyCalendar'} =  '1';
 $Self->{'Steinwegs::DutyEmail'} =  'jan@steinwegs.de';
 $Self->{'GenericInterface::Operation::TicketSearch'}->{'Order::Default'} =  'Down';
