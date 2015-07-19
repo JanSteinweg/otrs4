@@ -201,31 +201,32 @@ sub Run {
                 if ( $#Body > $Lines ) {
                     $MailBody .= '...';
                 }
-                $Lines = '['.$Lines.']';
+                $Lines = ' ['.$Lines.'] ';
             } else{
                 $Lines = '';
             }
         }
 
          #+ MailSubject
-        # TODO - length nur, wenn länger als length
-        my $Length = $Self->{ConfigObject}->Get('Steinwegs::DutySubjectLength') || '';
+        my $Length = $Self->{ConfigObject}->Get('Steinwegs::DutySubjectLength');
         my $MailSubject = $Param{GetParam}->{Subject};
-        if ( $Length  && $Length > 0 ) {
+        if ( $Length  && $Length > 0 && length($MailSubject) > $Length) {
             $MailSubject = substr($Param{GetParam}->{Subject},0,$Length);
             if ( length ( $Param{GetParam}->{Subject} ) > $Length ) {
                 $MailSubject .= '...';
             }
-            $Length = '['.$Length.']';
+            $Length = ' ['.$Length.'] ';
+        } else {
+            $Length = '';
         }
 
          #+ Duty Mail Body
         my $DutyBody =
             $Self-> {LayoutObject}->{LanguageObject}->Translate('Hi').',<br />'.
             $Self-> {LayoutObject}->{LanguageObject}->Translate('the ticket has these values').'<br />'.
-            '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('From').'</b>: $Param{GetParam}->{From} <br>'.
-            '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('Subject')." $Length</b> : $MailSubject<br>".
-            '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('Body')." $Lines</b> : $MailBody<br>".
+            '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('From')."</b>: $Param{GetParam}->{From} <br>".
+            '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('Subject')."$Length</b>: $MailSubject<br>".
+            '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('Body')."$Lines</b>: $MailBody<br>".
             '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('TicketNumber')."</b>: $Ticket{TicketNumber}<br>".
             '<b>'.$Self-> {LayoutObject}->{LanguageObject}->Translate('TicketLink')."</b>: $Link";
         $DutyBody = $Self->{HTMLUtilsObject}->LinkQuote(

@@ -123,6 +123,7 @@ $Self->{'TimeWorkingHours::Calendar1'} =  {
     '9',
     '10',
     '11',
+    '12',
     '13',
     '14',
     '15',
@@ -179,6 +180,18 @@ $Self->{'TimeWorkingHours::Calendar1'} =  {
     '16',
     '17'
   ]
+};
+$Self->{'TimeVacationDaysOneTime::Calendar1'} =  {
+  '2004' => {
+    '1' => {
+      '1' => 'test'
+    }
+  },
+  '2015' => {
+    '7' => {
+      '19' => 'duty-test'
+    }
+  }
 };
 $Self->{'TimeZone::Calendar1Name'} =  'Work time m-f,8-18';
 $Self->{'SendmailModule::AuthPassword'} =  'Otrs1234Otrs';
