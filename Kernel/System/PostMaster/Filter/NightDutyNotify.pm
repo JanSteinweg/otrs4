@@ -22,6 +22,7 @@ our @ObjectDependencies = (
     'Kernel::System::Ticket',
     'Kernel::System::HTMLUtils',
     'Kernel::Output::HTML::Layout',
+    'Kernel::System::Notification',
 );
 
 sub new {
@@ -39,6 +40,7 @@ sub new {
     $Self->{TimeObject}      = $Kernel::OM->Get('Kernel::System::Time');
     $Self->{HTMLUtilsObject} = $Kernel::OM->Get('Kernel::System::HTMLUtils');
     $Self->{LayoutObject}    = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
+    $Self->{NotifyObject}    = $Kernel::OM->Get('Kernel::System::Notification');
 
     return $Self;
 }
@@ -77,42 +79,21 @@ sub Run {
     ) if ( $Self->{Debug} > 0 );
 
     #+ Ferien?
-    my $Vacation = 0;
-    $Vacation = $Self->{TimeObject}->VacationCheck(
+    my $Vacation = $Self->{TimeObject}->VacationCheck(
         Year     => $Year,
         Month    => $Month,
         Day      => $Day,
         Calendar => $Calendar,
     );
-    
+
+    # DutyTime ?
     my $IsDutyTime = 1;
     if ( !$Vacation ) {
-        my @WeekDays = qw(Sun Mon Tue Wed Thu Fri Sat);
-        my $DayName = $WeekDays[$WeekDay];
-        #+ TimeWorkingHours?
-        my $TimeWorkingHours = $Self->{ConfigObject}->Get('TimeWorkingHours::Calendar'.$Calendar);
-        if ( $TimeWorkingHours->{ $WeekDays[$WeekDay] } ) {
-            # heute?
-            my %hours;
-            $hours{$_} = 1 for @{$TimeWorkingHours->{ $WeekDays[$WeekDay] }};
-            $Self->{LogOject}->Log(
-                Priority => 'info',
-                Message  => "W $WeekDay $DayName, H $Hour -".$hours{$Hour},
-            ) if ( $Self->{Debug} > 0 );
-            if ( $hours{$Hour} )  {
-                # jetzt Stunde?
-                $IsDutyTime = 0; # heute+jetzt im aktiven kalender, d.h. keine Bereitschaft
-                $Self->{LogOject}->Log(
-                    Priority => 'info',
-                    Message  => "No Hour $Hour",
-                ) if ( $Self->{Debug} > 0 );
-            } else {
-                $Self->{LogOject}->Log(
-                    Priority => 'info',
-                    Message  => "Hour $Hour",
-                ) if ( $Self->{Debug} > 0 );
-            }
-        }
+        $IsDutyTime = $Self->_IsDutyTimeCheck(
+            Calendar => $Calendar,
+            Weekday  => $WeekDay,
+            Hour     => $Hour,
+        );
     }
     
     #+ Ferien oder Bereitschaftszeit?
@@ -133,13 +114,6 @@ sub Run {
         );
 
         #+ get Ticket
-        my %SearchValues = ();
-        if ( $Param{GetParam}->{'X-Priority'} || $Param{GetParam}->{'X-OTRS-FollowUp-Priority'} ) {
-            my $prio = $Param{GetParam}->{'X-Priority'} || $Param{GetParam}->{'X-OTRS-FollowUp-Priority'};
-            $SearchValues{PriorityIDs} = [ $prio ];
-        } else {
-            $SearchValues{Priorities} = [ $Self->{ConfigObject}->Get('PostmasterDefaultPriority') ];
-        }
 
         my @TicketIDs = $Kernel::OM->Get('Kernel::System::Ticket')->TicketSearch(
             Result        => 'ARRAY',
@@ -150,7 +124,6 @@ sub Run {
             StateType     => 'Open',
             Title         => $Param{GetParam}->{Subject},
             From          => $Param{GetParam}->{From},
-            %SearchValues,
         );
         my $TicketID = 0;
         my %Ticket;
@@ -181,44 +154,14 @@ sub Run {
             'index.pl?Action=AgentTicketZoom;TicketID='.$TicketID;
 
          #+ MailBody
-        my $MailBody = $Self->{HTMLUtilsObject}->ToHTML(
-            String => $Param{GetParam}->{Body},
+        my ( $MailBody, $Lines ) = $Self->_ShortenBody(
+            Body => $Param{GetParam}->{Body},
         );
-        my $Lines = $Self->{ConfigObject}->Get('Steinwegs::DutyBodyLines') || '';
-        if ( $Lines && $Lines > 0 ) {
-            my @Body = split( /\n/, $MailBody );
-            my $NewBody = '';
-            # wenn body nicht kleiner||gleich DutyBodyLines, dann verkürzen 
-            if ( !($#Body <= $Lines) ) {
-                for ( my $i = 0; $i < $Lines; $i++ ) {
-                    $NewBody .= "> $Body[$i]";
-                   # add new line
-                    if ( $i < ( $Lines - 1 ) ) {
-                        $NewBody .= "\n";
-                    }
-                }
-                $MailBody = $NewBody;
-                if ( $#Body > $Lines ) {
-                    $MailBody .= '...';
-                }
-                $Lines = ' ['.$Lines.'] ';
-            } else{
-                $Lines = '';
-            }
-        }
 
          #+ MailSubject
-        my $Length = $Self->{ConfigObject}->Get('Steinwegs::DutySubjectLength');
-        my $MailSubject = $Param{GetParam}->{Subject};
-        if ( $Length  && $Length > 0 && length($MailSubject) > $Length) {
-            $MailSubject = substr($Param{GetParam}->{Subject},0,$Length);
-            if ( length ( $Param{GetParam}->{Subject} ) > $Length ) {
-                $MailSubject .= '...';
-            }
-            $Length = ' ['.$Length.'] ';
-        } else {
-            $Length = '';
-        }
+        my ( $MailSubject, $Length ) = $Self->_ShortenSubject(
+            Subject => $Param{GetParam}->{Subject},
+        );
 
          #+ Duty Mail Body
         my $DutyBody =
@@ -244,12 +187,139 @@ sub Run {
             Body          => $DutyBody,
             InReplyTo     => $Param{GetParam}->{'Message-ID'},
         );
-        $Self->{LogOject}->Log(
-            Priority => 'info',
-            Message  => "DutySend OK $TicketID",
-        ) if $Send;
+        if ( $Send ) {
+            $Self->{LogOject}->Log(
+                Priority => 'info',
+                Message  => "DutySend OK: $TicketID",
+            );
+            if ( $Self->{ConfigObject}->Get('Steinwegs::CreateHistory') ) {
+                # Ticket History
+                $Kernel::OM->Get('Kernel::System::Ticket')->HistoryAdd(
+                    Name         => 'Duty Notification to '.$DutyMail,
+                    HistoryType  => 'SendAgentNotification',
+                    TicketID     => $TicketID,
+                    CreateUserID => 1,
+                );
+            }
+        }
     }
     return 1;
+}
+
+sub _IsDutyTimeCheck{
+    my ( $Self, %Param ) = @_;
+
+    for ( qw (Weekday Hour) ) {
+        if ( !$Param{$_} ) {
+            $Self->{LogOject}->Log(
+                Priority => 'info',
+                Message  => "No $_ but required",
+            );
+            return;
+        }
+    }
+
+    my $Calendar = $Param{Calendar} || 1;
+    my $WeekDay  = $Param{WeekDay};
+    my $Hour     = $Param{Hour};
+    
+    my @WeekDays = qw(Sun Mon Tue Wed Thu Fri Sat);
+    my $DayName = $WeekDays[$WeekDay];
+    #+ TimeWorkingHours?
+    my $TimeWorkingHours = $Self->{ConfigObject}->Get('TimeWorkingHours::Calendar'.$Calendar);
+    if ( $TimeWorkingHours->{ $WeekDays[$WeekDay] } ) {
+        # heute?
+        my %hours;
+        $hours{$_} = 1 for @{$TimeWorkingHours->{ $WeekDays[$WeekDay] }};
+        $Self->{LogOject}->Log(
+            Priority => 'info',
+            Message  => "W $WeekDay $DayName, H $Hour -".$hours{$Hour},
+        ) if ( $Self->{Debug} > 0 );
+        if ( $hours{$Hour} )  {
+            # jetzt Stunde?
+            $Self->{LogOject}->Log(
+                Priority => 'info',
+                Message  => "No Hour $Hour",
+            ) if ( $Self->{Debug} > 0 );
+            return 0;  # heute+jetzt im aktiven kalender, d.h. keine Bereitschaft
+        } else {
+            $Self->{LogOject}->Log(
+                Priority => 'info',
+                Message  => "Hour $Hour",
+            ) if ( $Self->{Debug} > 0 );
+            return 1; # heute+jetzt nicht in kalender, d.h. Bereitschaft
+        }
+    }
+    # nicht Heute, bzw Hour = Arbeitszeit
+    return 0;
+}
+
+sub _ShortenBody{
+    my ( $Self, %Param ) = @_;
+    
+    for ( qw (Body) ) {
+        if ( !$Param{$_} ) {
+            $Self->{LogOject}->Log(
+                Priority => 'info',
+                Message  => "No $_ but required",
+            );
+            return;
+        }
+    }
+    
+    my $MailBody = $Self->{HTMLUtilsObject}->ToHTML(
+        String => $Param{Body},
+    );
+    my $Lines = $Self->{ConfigObject}->Get('Steinwegs::DutyBodyLines') || '';
+    if ( $Lines && $Lines > 0 ) {
+        my @Body = split( /\n/, $MailBody );
+        my $NewBody = '';
+        # wenn body nicht kleiner||gleich DutyBodyLines, dann verkürzen 
+        if ( !($#Body <= $Lines) ) {
+            for ( my $i = 0; $i < $Lines; $i++ ) {
+                $NewBody .= "> $Body[$i]";
+               # add new line
+                if ( $i < ( $Lines - 1 ) ) {
+                    $NewBody .= "\n";
+                }
+            }
+            $MailBody = $NewBody;
+            if ( $#Body > $Lines ) {
+                $MailBody .= '...';
+            }
+            $Lines = ' ['.$Lines.'] ';
+        } else{
+            $Lines = '';
+        }
+    }
+    return ( $MailBody, $Lines );
+}
+
+sub _ShortenSubject {
+    my ( $Self, %Param ) = @_;
+    
+    for ( qw (Subject) ) {
+        if ( !$Param{$_} ) {
+            $Self->{LogOject}->Log(
+                Priority => 'info',
+                Message  => "No $_ but required",
+            );
+            return;
+        }
+    }
+
+    my $MailSubject = $Param{Subject};
+    my $Length = $Self->{ConfigObject}->Get('Steinwegs::DutySubjectLength');
+    if ( $Length  && $Length > 0 && length($MailSubject) > $Length) {
+        $MailSubject = substr($Param{Subject},0,$Length);
+        if ( length ( $Param{Subject} ) > $Length ) {
+            $MailSubject .= '...';
+        }
+        $Length = ' ['.$Length.'] ';
+    } else {
+        $Length = '';
+    }
+    return ( $MailSubject, $Length );
 }
 
 1;
