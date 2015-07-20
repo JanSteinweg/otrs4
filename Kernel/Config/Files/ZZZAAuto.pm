@@ -4343,11 +4343,11 @@ $Self->{'Frontend::Module'}->{'AdminProcessManagement'} =  {
 $Self->{'PostMaster::PostFilterModule'}->{'001-NightDutyNotify'} =  {
   'Module' => 'Kernel::System::PostMaster::Filter::NightDutyNotify'
 };
-$Self->{'Steinwegs::CreateHistory'} =  '1';
-$Self->{'Steinwegs::DutyBodyLines'} =  '5';
-$Self->{'Steinwegs::DutySubjectLength'} =  '20';
-$Self->{'Steinwegs::NightDutyCalendar'} =  '1';
-$Self->{'Steinwegs::DutyEmail'} =  'jan@steinwegs.de';
+$Self->{'NightDutyNotify::CreateHistory'} =  '1';
+$Self->{'NightDutyNotify::DutyBodyLines'} =  '5';
+$Self->{'NightDutyNotify::DutySubjectLength'} =  '20';
+$Self->{'NightDutyNotify::NightDutyCalendar'} =  '1';
+$Self->{'NightDutyNotify::DutyEmail'} =  'jan@steinwegs.de';
 $Self->{'GenericInterface::Operation::TicketSearch'}->{'Order::Default'} =  'Down';
 $Self->{'GenericInterface::Operation::TicketSearch'}->{'SortBy::Default'} =  'Age';
 $Self->{'GenericInterface::Operation::TicketSearch'}->{'SearchLimit'} =  '500';

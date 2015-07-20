@@ -7,8 +7,8 @@
     <URL>http://www.steinwegs.de/</URL>
     <License>GNU GENERAL PUBLIC LICENSE Version 2, June 1991</License>
     <ChangeLog Version="0.0.1" Date="2015-07-19 22:30:00">Initial</ChangeLog>
-    <ChangeLog Version="0.0.2" Date="2015-07-20 22:30:00">Code beautified</ChangeLog>
-    <ChangeLog Version="0.0.2" Date="2015-07-20 22:30:00">Settings renamed (Steinwegs:: to NightDutyNotify::)and Readme.md</ChangeLog>
+    <ChangeLog Version="0.0.2" Date="2015-07-20 19:45:00">Code beautified</ChangeLog>
+    <ChangeLog Version="0.0.2" Date="2015-07-20 20:40:00">Settings renamed (Steinwegs:: to NightDutyNotify::)and Readme.md</ChangeLog>
     <Description Lang="en">A MailPostFilter sending Notifications during DutyTime</Description>
     <IntroInstall Type="post" Lang="en" Title="Informations">This will install a Mail-PostFilter sending Notifications during dutytime and Vacations to a special duty-mailaddress</IntroInstall>
     <BuildDate>?</BuildDate>
@@ -17,6 +17,6 @@
         <File Permission="644" Location="Kernel/System/PostMaster/Filter/NightDutyNotify.pm"></File>
         <File Permission="644" Location="Kernel/Language/de_NightDutyNotify.pm"></File>
         <File Permission="644" Location="Kernel/Config/Files/NightDutyNotify.xml"></File>
-        <File Permission="644" Location="Kernel/doc/en/NightDutyNotification_README.md"></File>
+        <File Permission="644" Location="doc/en/NightDutyNotification_README.md"></File>
     </Filelist>
 </otrs_package>
