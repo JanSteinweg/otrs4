@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <otrs_config version="1.0" init="Application">
-    <ConfigItem Name="Steinwegs::DutyEmail" Required="0" Valid="1">
+    <ConfigItem Name="NightDutyNotify::DutyEmail" Required="0" Valid="1">
         <Description Translatable="1">NightDuty EmailAddress</Description>
         <Group>NightDutyNotify</Group>
         <SubGroup>Core::Ticket</SubGroup>
@@ -8,7 +8,7 @@
             <String Regex="">jan@steinwegs.de</String>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Steinwegs::NightDutyCalendar" Required="0" Valid="1">
+    <ConfigItem Name="NightDutyNotify::NightDutyCalendar" Required="0" Valid="1">
         <Description Translatable="1">NightDuty Calendar</Description>
         <Group>NightDutyNotify</Group>
         <SubGroup>Core::Ticket</SubGroup>
@@ -16,7 +16,7 @@
             <String Regex="\w">1</String>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Steinwegs::DutySubjectLength" Required="0" Valid="1">
+    <ConfigItem Name="NightDutyNotify::DutySubjectLength" Required="0" Valid="1">
         <Description Translatable="1">Length of Subject in DutyNotificationMail</Description>
         <Group>NightDutyNotify</Group>
         <SubGroup>Core::Ticket</SubGroup>
@@ -24,7 +24,7 @@
             <String Regex="\w">20</String>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Steinwegs::DutyBodyLines" Required="0" Valid="1">
+    <ConfigItem Name="NightDutyNotify::DutyBodyLines" Required="0" Valid="1">
         <Description Translatable="1">Lines of original Body in DutyNotificationMail</Description>
         <Group>NightDutyNotify</Group>
         <SubGroup>Core::Ticket</SubGroup>
@@ -32,7 +32,7 @@
             <String Regex="\w">5</String>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="Steinwegs::CreateHistory" Required="1" Valid="1">
+    <ConfigItem Name="NightDutyNotify::CreateHistory" Required="1" Valid="1">
         <Description Translatable="1">Create a historyentry into the ticket.</Description>
         <Group>NightDutyNotify</Group>
         <SubGroup>Core::Ticket</SubGroup>

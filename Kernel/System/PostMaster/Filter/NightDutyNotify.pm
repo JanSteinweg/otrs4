@@ -67,7 +67,7 @@ sub Run {
         }
     }
 ##-
-    my $Calendar = $Self->{ConfigObject}->Get('Steinwegs::NightDutyCalendar') || '1';
+    my $Calendar = $Self->{ConfigObject}->Get('NightDutyNotify::NightDutyCalendar') || '1';
 
     #+ NowTime
     my ($Sec, $Min, $Hour, $Day, $Month, $Year, $WeekDay, $YearDay, $IsDist) = localtime time;
@@ -98,7 +98,7 @@ sub Run {
     
     #+ Ferien oder Bereitschaftszeit?
     if ( $Vacation || $IsDutyTime ) {
-        my $DutyMail = $Self->{ConfigObject}->Get('Steinwegs::DutyEmail');
+        my $DutyMail = $Self->{ConfigObject}->Get('NightDutyNotify::DutyEmail');
         #+ ERROR no DutyEmail
         if ( !$DutyMail ) {
             $Self->{LogOject}->Log(
@@ -192,7 +192,7 @@ sub Run {
                 Priority => 'info',
                 Message  => "DutySend OK: $TicketID",
             );
-            if ( $Self->{ConfigObject}->Get('Steinwegs::CreateHistory') ) {
+            if ( $Self->{ConfigObject}->Get('NightDutyNotify::CreateHistory') ) {
                 # Ticket History
                 $Kernel::OM->Get('Kernel::System::Ticket')->HistoryAdd(
                     Name         => 'Duty Notification to '.$DutyMail,
@@ -270,7 +270,7 @@ sub _ShortenBody{
     my $MailBody = $Self->{HTMLUtilsObject}->ToHTML(
         String => $Param{Body},
     );
-    my $Lines = $Self->{ConfigObject}->Get('Steinwegs::DutyBodyLines') || '';
+    my $Lines = $Self->{ConfigObject}->Get('NightDutyNotify::DutyBodyLines') || '';
     if ( $Lines && $Lines > 0 ) {
         my @Body = split( /\n/, $MailBody );
         my $NewBody = '';
@@ -309,7 +309,7 @@ sub _ShortenSubject {
     }
 
     my $MailSubject = $Param{Subject};
-    my $Length = $Self->{ConfigObject}->Get('Steinwegs::DutySubjectLength');
+    my $Length = $Self->{ConfigObject}->Get('NightDutyNotify::DutySubjectLength');
     if ( $Length  && $Length > 0 && length($MailSubject) > $Length) {
         $MailSubject = substr($Param{Subject},0,$Length);
         if ( length ( $Param{Subject} ) > $Length ) {
