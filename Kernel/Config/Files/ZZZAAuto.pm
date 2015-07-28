@@ -4054,6 +4054,205 @@ $Self->{'PostMaster::PreFilterModule'}->{'1-SystemMonitoring'} =  {
   'ServiceRegExp' => '\\s*Service:\\s+(.*)\\s*',
   'StateRegExp' => '\\s*State:\\s+(\\S+)'
 };
+$Self->{'Survey::Frontend::MenuModule'}->{'030-StatsDetails'} =  {
+  'Action' => 'AgentSurveyStats',
+  'Description' => 'Zoom Into Statistics Details',
+  'Link' => 'Action=AgentSurveyStats;SurveyID=[% Data.SurveyID | html %]',
+  'Module' => 'Kernel::Output::HTML::SurveyMenuGeneric',
+  'Name' => 'Stats Details',
+  'Target' => 'PopUp'
+};
+$Self->{'Survey::Frontend::MenuModule'}->{'020-EditQuestions'} =  {
+  'Action' => 'AgentSurveyEditQuestions',
+  'Description' => 'Edit Survey Questions',
+  'Link' => 'Action=AgentSurveyEditQuestions;SurveyID=[% Data.SurveyID | html %]',
+  'Module' => 'Kernel::Output::HTML::SurveyMenuGeneric',
+  'Name' => 'Edit Questions',
+  'Target' => 'PopUp'
+};
+$Self->{'Survey::Frontend::MenuModule'}->{'010-EditGeneralInfo'} =  {
+  'Action' => 'AgentSurveyEdit',
+  'Description' => 'Edit Survey General Information',
+  'Link' => 'Action=AgentSurveyEdit;SurveyID=[% Data.SurveyID | html %]',
+  'Module' => 'Kernel::Output::HTML::SurveyMenuGeneric',
+  'Name' => 'Edit General Info',
+  'Target' => 'PopUp'
+};
+$Self->{'Survey::Frontend::MenuModule'}->{'000-Back'} =  {
+  'Action' => '',
+  'Description' => 'Back',
+  'Link' => '[% Env("LastScreenOverview") | html %]',
+  'Module' => 'Kernel::Output::HTML::SurveyMenuGeneric',
+  'Name' => 'Back',
+  'Target' => 'Back'
+};
+$Self->{'PreferencesGroups'}->{'SurveyOverviewSmallPageShown'} =  {
+  'Active' => '0',
+  'Column' => 'Other Settings',
+  'Data' => {
+    '10' => '10',
+    '15' => '15',
+    '20' => '20',
+    '25' => '25',
+    '30' => '30',
+    '35' => '35'
+  },
+  'DataSelected' => '25',
+  'Key' => 'Survey limit per page for Survey Overview "Small"',
+  'Label' => 'Survey Overview "Small" Limit',
+  'Module' => 'Kernel::Output::HTML::PreferencesGeneric',
+  'PrefKey' => 'UserSurveyOverviewSmallPageShown',
+  'Prio' => '8000'
+};
+$Self->{'Survey::Hook'} =  'Survey#';
+$Self->{'Survey::AmountOfSurveysPer30Days'} =  '0';
+$Self->{'Survey::SendInHoursAfterClose'} =  '0';
+$Self->{'Survey::Frontend::HTMLRichTextHeightMax'} =  '2500';
+$Self->{'Survey::Frontend::HTMLRichTextHeightDefault'} =  '80';
+$Self->{'Survey::Frontend::AgentSurveyOverview'}->{'ShowColumns'} =  {
+  'ChangeBy' => '0',
+  'ChangeTime' => '0',
+  'CreateBy' => '0',
+  'CreateTime' => '1',
+  'Description' => '0',
+  'Introduction' => '0',
+  'NotificationBody' => '0',
+  'NotificationSender' => '0',
+  'NotificationSubject' => '0',
+  'Number' => '1',
+  'Status' => '1',
+  'Title' => '1'
+};
+$Self->{'Survey::Frontend::Overview'}->{'Small'} =  {
+  'Image' => 'overviewsmall.png',
+  'ImageSelected' => 'overviewsmall-selected.png',
+  'Module' => 'Kernel::Output::HTML::SurveyOverviewSmall',
+  'Name' => 'Small',
+  'NameShort' => 'S',
+  'PageShown' => '25'
+};
+$Self->{'Ticket::EventModulePost'}->{'99-SurveySendRequest'} =  {
+  'Event' => '(ArticleCreate|TicketStateUpdate)',
+  'Module' => 'Kernel::System::Ticket::Event::SurveySendRequest'
+};
+$Self->{'Survey::SendNoSurveyRegExp'} =  '(MAILER-DAEMON|postmaster|abuse)@.+?\\..+?';
+$Self->{'Survey::NotificationBody'} =  'Dear Customer,
+
+Thanks for using our service. Help us to improve us and our services.
+
+Please give us feedback on how to improve our services:
+
+<OTRS_CONFIG_HttpType>://<OTRS_CONFIG_FQDN>/<OTRS_CONFIG_ScriptAlias>public.pl?Action=PublicSurvey;PublicSurveyKey=<OTRS_PublicSurveyKey>
+
+Thanks for your help!
+
+Your OTRS-Team
+            ';
+$Self->{'Survey::NotificationSubject'} =  'Help us with your feedback!';
+$Self->{'Survey::NotificationRecipientBlacklist'} =  [];
+$Self->{'Survey::NotificationSender'} =  'quality@example.com';
+$Self->{'Survey::CheckSendConditionService'} =  '0';
+$Self->{'Survey::CheckSendConditionTicketType'} =  '0';
+$Self->{'Survey::SendPeriod'} =  '300';
+$Self->{'PublicFrontend::Module'}->{'PublicSurvey'} =  {
+  'Description' => 'Public Survey.',
+  'Loader' => {
+    'CSS' => [
+      'Survey.Customer.Default.css'
+    ]
+  },
+  'NavBarName' => 'Survey',
+  'Title' => 'Survey'
+};
+$Self->{'Frontend::Module'}->{'AgentSurveyEditQuestions'} =  {
+  'Description' => 'A module to edit survey questions.',
+  'Loader' => {
+    'CSS' => [
+      'Survey.Agent.Default.css'
+    ]
+  }
+};
+$Self->{'Frontend::Module'}->{'AgentSurveyZoom'} =  {
+  'Description' => 'Survey Zoom Module.',
+  'Loader' => {
+    'CSS' => [
+      'Survey.Agent.Default.css'
+    ],
+    'JavaScript' => [
+      'Survey.Agent.SurveyZoom.js'
+    ]
+  },
+  'NavBarName' => 'Survey'
+};
+$Self->{'Frontend::Module'}->{'AgentSurveyStats'} =  {
+  'Description' => 'Survey Stats Module.',
+  'Loader' => {
+    'CSS' => [
+      'Survey.Agent.Default.css'
+    ]
+  },
+  'NavBarName' => 'Survey'
+};
+$Self->{'Frontend::Module'}->{'AgentSurveyEdit'} =  {
+  'Description' => 'Survey Edit Module.',
+  'Loader' => {
+    'CSS' => [
+      'Survey.Agent.Default.css'
+    ]
+  },
+  'NavBarName' => 'Survey'
+};
+$Self->{'Frontend::Module'}->{'AgentSurveyAdd'} =  {
+  'Loader' => {
+    'CSS' => [
+      'Survey.Agent.Default.css'
+    ]
+  },
+  'NavBar' => [
+    {
+      'AccessKey' => '',
+      'Block' => '',
+      'Description' => 'New',
+      'Link' => 'Action=AgentSurveyAdd',
+      'Name' => 'New',
+      'NavBar' => 'Survey',
+      'Prio' => '200',
+      'Type' => ''
+    }
+  ]
+};
+$Self->{'Frontend::Module'}->{'AgentSurveyOverview'} =  {
+  'Description' => 'A Survey Module.',
+  'Loader' => {
+    'CSS' => [
+      'Survey.Agent.Default.css'
+    ]
+  },
+  'NavBar' => [
+    {
+      'AccessKey' => 'u',
+      'Block' => 'ItemArea',
+      'Description' => 'A Survey Module.',
+      'Link' => 'Action=AgentSurveyOverview',
+      'Name' => 'Survey',
+      'NavBar' => 'Survey',
+      'Prio' => '8000',
+      'Type' => 'Menu'
+    },
+    {
+      'AccessKey' => '',
+      'Block' => '',
+      'Description' => 'Overview',
+      'Link' => 'Action=AgentSurveyOverview',
+      'Name' => 'Overview',
+      'NavBar' => 'Survey',
+      'Prio' => '100',
+      'Type' => ''
+    }
+  ],
+  'NavBarName' => 'Survey',
+  'Title' => 'Survey'
+};
 $Self->{'Scheduler::TaskDataLength'} =  '8000';
 $Self->{'Loader::Agent::CommonJS'}->{'000-Scheduler'} =  [
   'Core.Agent.SchedulerInfo.js'
