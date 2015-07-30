@@ -52,6 +52,30 @@
                         <p class="Value">[% Data.RequestComplete | html %]</p>
                         <div class="Clear"></div>
                     </fieldset>
+[% RenderBlockStart("VoteYears") %]
+                    <fieldset class="TableLike FixedLabelSmall">
+                        <label>[% Translate("Years") | html %]:</label>
+                        <p class="Value">
+                            <a href="[% Env("Baselink") %]Action=AgentSurveyZoom;SurveyID=[% Data.SurveyID | html %]">[% Translate("All") | html %]</a>
+[% RenderBlockStart("VoteYear") %]
+                            , <a [% Data.Current | html %] href="[% Env("Baselink") %]Action=AgentSurveyZoom;SurveyID=[% Data.SurveyID | html %];VoteYear=[% Data.VoteYear | html %]">[% Data.VoteYear | html %]</a>
+[% RenderBlockEnd("VoteYear") %]
+                        </p>
+                        <div class="Clear"></div>
+                    </fieldset>
+[% RenderBlockEnd("VoteYears") %]
+[% RenderBlockStart("VoteMonths") %]
+                    <fieldset class="TableLike FixedLabelSmall">
+                        <label>[% Translate("Months") | html %]:</label>
+                        <p class="Value">
+                            <a href="[% Env("Baselink") %]Action=AgentSurveyZoom;SurveyID=[% Data.SurveyID | html %];VoteYear=[% Data.VoteYear | html %]">[% Translate("All") | html %]</a>
+[% RenderBlockStart("VoteMonth") %]
+                            , <a [% Data.Current | html %] href="[% Env("Baselink") %]Action=AgentSurveyZoom;SurveyID=[% Data.SurveyID | html %];VoteYear=[% Data.VoteYear | html %];VoteMonth=[% Data.VoteMonth | html %]">[% Data.VoteMonth | html %]</a>
+[% RenderBlockEnd("VoteMonth") %]
+                        </p>
+                        <div class="Clear"></div>
+                    </fieldset>
+[% RenderBlockEnd("VoteMonths") %]
                 </div>
             </div>
         </div>
@@ -118,7 +142,7 @@
             </div>
 
 [% RenderBlockStart("SurveyBlock") %]
-            <div class="WidgetSimple SpacingTop" id="[% Data.SurveyField %]Block">
+            <div class="WidgetSimple SpacingTop Toggle Collapsed" id="[% Data.SurveyField %]Block">
                 <div class="Header">
                     <div class="WidgetAction Toggle">
                         <a href="[% Env("Baselink") %]Action=AgentSurveyZoom;SurveyID=[% Data.SurveyID | uri %]" title="[% Translate("Show or hide the content") | html %]"><i class="fa fa-caret-right"></i><i class="fa fa-caret-down"></i></a>
@@ -168,7 +192,9 @@
                                 <div class="SurveyGraphBar" style="width:[% Data.AnswerPercentTable | html %]%;"></div >
                             </div>
                         </div>
-                        <p class="SurveyGraphLeyend">[% Data.AnswerPercent | html %]%</p>
+                        <div title="[% Data.AnswerVotes | html %]">
+                            <p class="SurveyGraphLeyend">[% Data.AnswerPercentShow | html %]%</p>
+                        </div>
 [% RenderBlockEnd("SurveyEditStatsAnswer") %]
                     </fieldset>
 [% RenderBlockEnd("SurveyEditStatsQuestion") %]
